@@ -1,0 +1,7 @@
+[project]
+name = "meeting-scribe"
+version = "0.1.0"
+dependencies = [
+    "django",
+    "djangorestframework"
+]

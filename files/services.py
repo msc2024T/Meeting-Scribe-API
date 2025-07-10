@@ -2,12 +2,13 @@ from .models import AudioFile
 from datetime import datetime, timedelta
 from django.utils import timezone
 from azure.storage.blob import BlobServiceClient, ContentSettings, generate_blob_sas, BlobSasPermissions
+from django.conf import settings
 import environ
 import uuid
 from mutagen import File
 from users.services import UserQuotaService
 
-
+# Use the same environment instance as Django settings
 env = environ.Env()
 
 
@@ -53,7 +54,7 @@ class AudioFileService:
         self.user = user
         self.dir_root = "meetingscribe/"
 
-    def upload_Audio_file(self, audio_file, user):
+    def upload_audio_file(self, audio_file):
         if not audio_file:
             raise ValueError("No audio file provided")
 
@@ -74,7 +75,7 @@ class AudioFileService:
         audio = File(audio_file)
         duraton_seconds = audio.info.length
 
-        user_quota_service = UserQuotaService(user)
+        user_quota_service = UserQuotaService(self.user)
         user_quota = user_quota_service.get_quota()
         if duraton_seconds > (user_quota.max_minutes - user_quota.used_minutes) * 60:
             raise ValueError("Audio file duration exceeds user's limit")
@@ -96,7 +97,7 @@ class AudioFileService:
             size=audio_file.size,
             extention=extension,
             durtion_seconds=duraton_seconds,
-            user=user,
+            user=self.user,
             uploaded_at=timezone.now()
         )
 

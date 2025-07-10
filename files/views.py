@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from .services import FileService
+from .services import AudioFileService
 from .serializers import AudioFileSerializer
 
 
@@ -21,7 +21,7 @@ class AudioFileViewSet(ViewSet):
                 )
 
             user = request.user
-            file_service = FileService(user)
+            file_service = AudioFileService(user)
             audio_file_record = file_service.upload_audio_file(audio_file)
             serializer = AudioFileSerializer(audio_file_record)
 
@@ -44,7 +44,7 @@ class AudioFileViewSet(ViewSet):
         """
         try:
             user = request.user
-            file_service = FileService(user)
+            file_service = AudioFileService(user)
             audio_file_url = file_service.get_audio_file_url(pk)
 
             return Response({
@@ -64,7 +64,7 @@ class AudioFileViewSet(ViewSet):
         """
         try:
             user = request.user
-            file_service = FileService(user)
+            file_service = AudioFileService(user)
             audio_files = file_service.get_user_audio_files()
             serializer = AudioFileSerializer(audio_files, many=True)
 

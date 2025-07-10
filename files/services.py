@@ -1,5 +1,6 @@
 from .models import AudioFile
-from django.utils import datetime, timedelta
+from datetime import datetime, timedelta
+from django.utils import timezone
 from azure.storage.blob import BlobServiceClient, ContentSettings, generate_blob_sas, BlobSasPermissions
 import environ
 import uuid
@@ -37,77 +38,85 @@ class AzureBlobService:
             blob_name=blob_name,
             account_key=env('AZURE_STORAGE_KEY'),
             permission=BlobSasPermissions(read=True),
-            expiry=datetime.utcnow() + timedelta(minutes=expiry_minutes),
+            expiry=timezone.now() + timedelta(minutes=expiry_minutes),
             content_disposition=content_disposition  # Add content disposition
         )
 
         # Construct the full URL with SAS token
         return f"{blob_client.url}?{sas_token}"
 
-    class AudioFileService:
 
-        def __init__(self, user):
-            self.azure_blob_service = AzureBlobService()
-            self.user = user
-            self.dir_root = "meetingscribe/"
+class AudioFileService:
 
-        def upload_Audio_file(self, audio_file, user):
-            if not audio_file:
-                raise ValueError("No audio file provided")
+    def __init__(self, user):
+        self.azure_blob_service = AzureBlobService()
+        self.user = user
+        self.dir_root = "meetingscribe/"
 
-            # check file extension
-            if not audio_file.name:
-                raise ValueError("Audio file name is required")
-            if '.' not in audio_file.name:
-                raise ValueError("Audio file name must have an extension")
-            extension = audio_file.name.split('.')[-1].lower()
-            if extension not in ['mp3', 'wav', 'ogg', 'flac', 'm4a']:
-                raise ValueError("Unsupported audio file format")
+    def upload_Audio_file(self, audio_file, user):
+        if not audio_file:
+            raise ValueError("No audio file provided")
 
-            # chek file size is less than 50MB
-            if audio_file.size > 50 * 1024 * 1024:  #
-                raise ValueError("Audio file size exceeds 50MB limit")
+        # check file extension
+        if not audio_file.name:
+            raise ValueError("Audio file name is required")
+        if '.' not in audio_file.name:
+            raise ValueError("Audio file name must have an extension")
+        extension = audio_file.name.split('.')[-1].lower()
+        if extension not in ['mp3', 'wav', 'ogg', 'flac', 'm4a']:
+            raise ValueError("Unsupported audio file format")
 
-            # check autio file duration is less than maximum allowed duration
-            audio = File(audio_file)
-            duraton_seconds = audio.info.length
+        # chek file size is less than 50MB
+        if audio_file.size > 50 * 1024 * 1024:  #
+            raise ValueError("Audio file size exceeds 50MB limit")
 
-            user_quota_service = UserQuotaService(user)
-            user_quota = user_quota_service.get_quota()
-            if duraton_seconds > (user_quota.max_minutes - user_quota.used_minutes) * 60:
-                raise ValueError("Audio file duration exceeds user's limit")
+        # check autio file duration is less than maximum allowed duration
+        audio = File(audio_file)
+        duraton_seconds = audio.info.length
 
-            # Create a unique blob name
-            unique_id = str(uuid.uuid4())
-            blob_name = f"{self.dir_root}{unique_id}.{extension}"
+        user_quota_service = UserQuotaService(user)
+        user_quota = user_quota_service.get_quota()
+        if duraton_seconds > (user_quota.max_minutes - user_quota.used_minutes) * 60:
+            raise ValueError("Audio file duration exceeds user's limit")
 
-            # Upload the file to Azure Blob Storage
-            url = self.azure_blob_service.upload(blob_name, audio_file)
-            if not url:
-                raise ValueError(
-                    "Failed to upload audio file to Azure Blob Storage")
+        # Create a unique blob name
+        unique_id = str(uuid.uuid4())
+        blob_name = f"{self.dir_root}{unique_id}.{extension}"
 
-            # Save the file metadata to the database
-            audio_file_record = AudioFile.objects.create(
-                id=unique_id,
-                name=audio_file.name,
-                size=audio_file.size,
-                extention=extension,
-                durtion_seconds=duraton_seconds,
-                user=user,
-                uploaded_at=datetime.datetime.now()
-            )
+        # Upload the file to Azure Blob Storage
+        url = self.azure_blob_service.upload(blob_name, audio_file)
+        if not url:
+            raise ValueError(
+                "Failed to upload audio file to Azure Blob Storage")
 
-            # Update user's quota
-            user_quota_service.update_quota(duraton_seconds / 60)
-            return audio_file_record
+        # Save the file metadata to the database
+        audio_file_record = AudioFile.objects.create(
+            id=unique_id,
+            name=audio_file.name,
+            size=audio_file.size,
+            extention=extension,
+            durtion_seconds=duraton_seconds,
+            user=user,
+            uploaded_at=timezone.now()
+        )
 
-        def get_audio_file_url(self, audioFile_id):
-            try:
-                audio_file = AudioFile.objects.get(
-                    id=audioFile_id, user=self.user)
-                blob_name = f"{self.dir_root}{audio_file.id}.{audio_file.extention}"
-                return self.azure_blob_service.generate_sas_url(blob_name)
+        # Update user's quota
+        user_quota_service.update_quota(duraton_seconds / 60)
+        return audio_file_record
 
-            except AudioFile.DoesNotExist:
-                raise ValueError("Audio File not found")
+    def get_audio_file_url(self, audioFile_id):
+        try:
+            audio_file = AudioFile.objects.get(
+                id=audioFile_id, user=self.user)
+            blob_name = f"{self.dir_root}{audio_file.id}.{audio_file.extention}"
+            return self.azure_blob_service.generate_sas_url(blob_name)
+
+        except AudioFile.DoesNotExist:
+            raise ValueError("Audio File not found")
+
+    def get_user_audio_files(self):
+        audio_files = AudioFile.objects.filter(user=self.user)
+        if not audio_files:
+            raise ValueError("No audio files found for the user")
+
+        return audio_files

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User as AuthUser
+from .models import UserQuota
 
 # Serializer for user signup
 
@@ -23,3 +24,9 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(
         write_only=True, required=True, min_length=8, max_length=30)
     is_remembered = serializers.BooleanField(default=False, required=False)
+
+
+class UserQuotaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserQuota
+        fields = '__all__'

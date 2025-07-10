@@ -1,0 +1,37 @@
+# Core Django packages
+Django>=5.0.0,<6.0.0
+djangorestframework>=3.14.0,<4.0.0
+djangorestframework-simplejwt>=5.5.0,<6.0.0
+
+# CORS handling
+django-cors-headers>=4.7.0,<5.0.0
+
+# Environment variables
+django-environ>=0.12.0,<0.13.0
+
+# Database
+psycopg2-binary>=2.9.10,<3.0.0
+
+# Azure Storage
+azure-storage-blob>=12.25.1,<13.0.0
+
+# Audio file handling
+mutagen>=1.45.1,<2.0.0
+
+# Additional useful packages
+Pillow>=10.0.0,<11.0.0  # For image handling if needed
+python-decouple>=3.8,<4.0  # Alternative to django-environ
+gunicorn>=21.2.0,<22.0.0  # WSGI HTTP Server for production
+whitenoise>=6.5.0,<7.0.0  # Static file serving
+celery>=5.3.0,<6.0.0  # Task queue (if needed for async processing)
+redis>=5.0.0,<6.0.0  # For caching and celery broker
+requests>=2.31.0,<3.0.0  # HTTP library
+python-dotenv>=1.0.0,<2.0.0  # Load environment variables from .env file
+
+# Development and testing packages
+pytest>=7.4.0,<8.0.0
+pytest-django>=4.5.0,<5.0.0
+coverage>=7.3.0,<8.0.0
+black>=23.0.0,<24.0.0  # Code formatting
+flake8>=6.0.0,<7.0.0  # Code linting
+isort>=5.12.0,<6.0.0  # Import sorting

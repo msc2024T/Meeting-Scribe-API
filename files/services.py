@@ -21,9 +21,12 @@ class AzureBlobService:
             env('AZURE_STORAGE_CONTAINER_NAME'))
 
     def upload(self, blob_name, file, content_type="application/octet-stream"):
+        print(f"Uploading file to Azure Blob Storage: {blob_name}")
         blob_client = self.container.get_blob_client(blob_name)
+        print(f"Blob client created for: {blob_name}")
         blob_client.upload_blob(
             file,  content_settings=ContentSettings(content_type=content_type))
+        print(f"File uploaded successfully: {blob_name}")
         return blob_client.url
 
     def delete(self, blob_name):
@@ -57,6 +60,7 @@ class AudioFileService:
     def upload_audio_file(self, audio_file):
         if not audio_file:
             raise ValueError("No audio file provided")
+        print("Uploading audio file...")
 
         # check file extension
         if not audio_file.name:
@@ -74,18 +78,31 @@ class AudioFileService:
         # check autio file duration is less than maximum allowed duration
         audio = File(audio_file)
         duraton_seconds = audio.info.length
+        print("Audio file duration in seconds:", duraton_seconds)
+
+        # Reset file pointer to start
+        audio_file.seek(0)
 
         user_quota_service = UserQuotaService(self.user)
         user_quota = user_quota_service.get_quota()
+        print("User quota:", user_quota)
         if duraton_seconds > (user_quota.max_minutes - user_quota.used_minutes) * 60:
             raise ValueError("Audio file duration exceeds user's limit")
 
         # Create a unique blob name
         unique_id = str(uuid.uuid4())
         blob_name = f"{self.dir_root}{unique_id}.{extension}"
+        print(f"Blob name: {blob_name}")
 
         # Upload the file to Azure Blob Storage
-        url = self.azure_blob_service.upload(blob_name, audio_file)
+        try:
+            url = self.azure_blob_service.upload(blob_name, audio_file)
+
+        except Exception as e:
+            print("Azure upload error:", str(e))
+            raise
+
+        print(f"File uploaded to Azure Blob Storage: {url}")
         if not url:
             raise ValueError(
                 "Failed to upload audio file to Azure Blob Storage")

@@ -45,7 +45,7 @@ class TranscriptionService:
             transcription = Transcription.objects.create(
                 audio_file=audio_file,
                 text=transcription_text,
-                user=self.user
+
             )
         finally:
             # Always clean up the temp file

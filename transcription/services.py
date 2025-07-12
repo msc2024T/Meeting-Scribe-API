@@ -17,7 +17,11 @@ class TranscriptionService:
     def get_transcription(self, audio_file_id):
         audio_file = self.audio_file_service.get_audio_file_by_id(
             audio_file_id)
-        transcription = Transcription.objects.get(audio_file=audio_file)
+        try:
+            # Check if transcription already exists
+            transcription = Transcription.objects.get(audio_file=audio_file)
+        except Transcription.DoesNotExist:
+            return None
         return transcription
 
     def create_transcription(self, audio_file_id):

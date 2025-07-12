@@ -40,6 +40,11 @@ class TranscriptionView(APIView):
             transcription_service = TranscriptionService(user)
             transcription = transcription_service.get_transcription(
                 audio_file_id)
+            if not transcription:
+                return Response(
+                    {"data": "Transcription not found"},
+                    status=status.HTTP_200_OK
+                )
             serializer = TranscriptionSerializer(transcription)
 
             return Response({

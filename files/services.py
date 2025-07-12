@@ -138,3 +138,10 @@ class AudioFileService:
             raise ValueError("No audio files found for the user")
 
         return audio_files
+
+    def get_audio_file_by_id(self, audioFile_id):
+        try:
+            audio_file = AudioFile.objects.get(id=audioFile_id, user=self.user)
+            return audio_file
+        except AudioFile.DoesNotExist:
+            raise ValueError("Audio File not found")

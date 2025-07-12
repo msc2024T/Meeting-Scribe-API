@@ -112,7 +112,7 @@ class AudioFileService:
             id=unique_id,
             name=audio_file.name,
             size=audio_file.size,
-            extention=extension,
+            extension=extension,
             durtion_seconds=duraton_seconds,
             user=self.user,
             uploaded_at=timezone.now()
@@ -126,7 +126,7 @@ class AudioFileService:
         try:
             audio_file = AudioFile.objects.get(
                 id=audioFile_id, user=self.user)
-            blob_name = f"{self.dir_root}{audio_file.id}.{audio_file.extention}"
+            blob_name = f"{self.dir_root}{audio_file.id}.{audio_file.extension}"
             return self.azure_blob_service.generate_sas_url(blob_name)
 
         except AudioFile.DoesNotExist:

@@ -9,7 +9,7 @@ class AudioFile(models.Model):
     name = models.CharField(max_length=255, help_text="Name of the audio file")
     size = models.PositiveIntegerField(
         help_text="Size of the audio file in bytes")
-    extention = models.CharField(
+    extension = models.CharField(
         max_length=10, help_text="File extension (e.g., mp3, wav)")
     durtion_seconds = models.PositiveIntegerField(
         help_text="Duration of the audio file in seconds")

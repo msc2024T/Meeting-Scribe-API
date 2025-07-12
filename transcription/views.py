@@ -20,11 +20,7 @@ class TranscriptionView(APIView):
 
             return Response({
                 "message": "Transcription created successfully",
-                "data": {
-                    "id": transcription.id,
-                    "text": transcription.text,
-                    "audio_file_id": transcription.audio_file.id
-                }
+                "data": transcription,
             }, status=status.HTTP_201_CREATED)
 
         except ValueError as e:

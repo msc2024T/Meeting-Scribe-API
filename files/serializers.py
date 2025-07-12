@@ -8,6 +8,6 @@ class AudioFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AudioFile
-        fields = ('id', 'name', 'size', 'extention',
+        fields = ('id', 'name', 'size', 'extension',
                   'durtion_seconds', 'user', 'uploaded_at')
         read_only_fields = ('id', 'user', 'uploaded_at')

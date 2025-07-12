@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .services import TranscriptionService
+from .serializers import TranscriptionSerializer
 
 
 class TranscriptionView(APIView):
@@ -27,4 +28,26 @@ class TranscriptionView(APIView):
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def get(self, request, audio_file_id):
+        """
+        Retrieve a transcription for an audio file.
+        GET /transcriptions/{audio_file_id}/
+        """
+        try:
+            user = request.user
+            transcription_service = TranscriptionService(user)
+            transcription = transcription_service.get_transcription(
+                audio_file_id)
+            serializer = TranscriptionSerializer(transcription)
+
+            return Response({
+                "data": serializer.data,
+            }, status=status.HTTP_200_OK)
+
+        except ValueError as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_404_NOT_FOUND
             )

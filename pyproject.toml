@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "meeting-scribe"
 version = "0.1.0"
@@ -12,5 +16,7 @@ dependencies = [
     "mutagen (>=1.45.1,<2.0.0)",
     "azure-cognitiveservices-speech",
     "ffmpeg-python (>=0.2.0,<1.0.0)"
-
 ]
+
+[tool.setuptools]
+packages = ["meetingscribe", "files", "users", "transcription"]

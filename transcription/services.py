@@ -80,10 +80,7 @@ class TranscriptionService:
 class OpenAIService:
     def __init__(self, user):
         self.user = user
-        print(
-            env('OPENAI_API_BASE'), env('OPENAI_API_KEY')
 
-        )
         self.client = AzureOpenAI(
             azure_endpoint=env('OPENAI_API_BASE'),
             api_key=env('OPENAI_API_KEY'),

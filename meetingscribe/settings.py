@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'users',
     'files',
-    'transcription'
+    'transcription',
+    "summarizer",
 ]
 
 MIDDLEWARE = [

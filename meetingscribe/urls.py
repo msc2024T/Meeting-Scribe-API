@@ -8,4 +8,5 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('files/', include('files.urls')),
     path('transcriptions/', include('transcription.urls')),
+    path('summarizer/', include('summarizer.urls')),
 ]

@@ -4,9 +4,11 @@ from .models import UserQuota
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta, date
+from rest_framework.permissions import AllowAny
 
 
 class UserService:
+    permission_classes = [AllowAny]
 
     def signup(self, email, password, first_name, last_name):
 
@@ -38,6 +40,9 @@ class UserService:
         )
 
     def login(self, email, password, is_remembered=False):
+
+        permission_classes = [AllowAny]
+
         if not email or not password:
             raise ValueError("Email and password are required")
 

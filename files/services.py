@@ -134,8 +134,6 @@ class AudioFileService:
 
     def get_user_audio_files(self):
         audio_files = AudioFile.objects.filter(user=self.user)
-        if not audio_files:
-            raise ValueError("No audio files found for the user")
 
         return audio_files
 
